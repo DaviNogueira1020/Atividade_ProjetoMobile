@@ -1,27 +1,86 @@
+// lib/models/chamado_model.dart
+//
+// ⚠️  ATENÇÃO AO TIME:
+//   - Prioridade e Status são INTEGER no banco (conforme databasedoc.md).
+//   - Categoria é TEXT no banco (ex: "transito", "limpeza_urbana").
+//   - Datas são epoch millis INTEGER (DateTime.millisecondsSinceEpoch).
+//   - Título tem UNIQUE constraint no banco → não deixar duplicar aqui.
+
 import 'package:intl/intl.dart';
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+/// Status armazenado como INTEGER no banco: 0 = aberto, 1 = emAndamento, 2 = concluido
 enum StatusChamado {
-  aberto,
-  emProgresso,
-  aguardando,
-  concluido,
+  aberto,       // 0
+  emAndamento,  // 1
+  concluido;    // 2
+
+  String get label {
+    switch (this) {
+      case StatusChamado.aberto:      return 'Aberto';
+      case StatusChamado.emAndamento: return 'Em Andamento';
+      case StatusChamado.concluido:   return 'Concluído';
+    }
+  }
 }
 
+/// Prioridade armazenada como INTEGER: 0 = baixa … 3 = critica
+/// ORDER BY prioridade DESC coloca crítica no topo.
 enum PrioridadeChamado {
-  baixa,
-  media,
-  alta,
-  critica,
+  baixa,   // 0
+  media,   // 1
+  alta,    // 2
+  critica; // 3
+
+  String get label {
+    switch (this) {
+      case PrioridadeChamado.baixa:   return 'Baixa';
+      case PrioridadeChamado.media:   return 'Média';
+      case PrioridadeChamado.alta:    return 'Alta';
+      case PrioridadeChamado.critica: return 'Crítica';
+    }
+  }
 }
 
+/// Categoria armazenada como TEXT (ex: "transito") — conforme databasedoc.md
 enum CategoriaChamado {
-  asfalto,
-  iluminacao,
-  drenagem,
-  calçada,
-  manutenção,
-  outro,
+  transito,       // "transito"
+  iluminacao,     // "iluminacao"
+  saneamento,     // "saneamento"
+  seguranca,      // "seguranca"
+  limpezaUrbana,  // "limpeza_urbana"
+  desastreNatural; // "desastre_natural"
+
+  /// Valor gravado no banco (TEXT)
+  String get dbValue {
+    switch (this) {
+      case CategoriaChamado.transito:        return 'transito';
+      case CategoriaChamado.iluminacao:      return 'iluminacao';
+      case CategoriaChamado.saneamento:      return 'saneamento';
+      case CategoriaChamado.seguranca:       return 'seguranca';
+      case CategoriaChamado.limpezaUrbana:   return 'limpeza_urbana';
+      case CategoriaChamado.desastreNatural: return 'desastre_natural';
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case CategoriaChamado.transito:        return 'Trânsito';
+      case CategoriaChamado.iluminacao:      return 'Iluminação';
+      case CategoriaChamado.saneamento:      return 'Saneamento';
+      case CategoriaChamado.seguranca:       return 'Segurança';
+      case CategoriaChamado.limpezaUrbana:   return 'Limpeza Urbana';
+      case CategoriaChamado.desastreNatural: return 'Desastre Natural';
+    }
+  }
+
+  static CategoriaChamado fromDbValue(String value) {
+    return CategoriaChamado.values.firstWhere((e) => e.dbValue == value);
+  }
 }
+
+// ─── Model ────────────────────────────────────────────────────────────────────
 
 class ChamadoModel {
   final int? id;
@@ -29,147 +88,108 @@ class ChamadoModel {
   final String descricao;
   final CategoriaChamado categoria;
   final PrioridadeChamado prioridade;
+  final StatusChamado status;
   final String bairro;
   final String responsavel;
-  final DateTime dataCriacao;
-  final DateTime? dataResolucao;
-  final StatusChamado status;
-  final String? observacoes;
+  final DateTime dataAbertura; // = data_abertura no banco (epoch millis)
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  ChamadoModel({
+  const ChamadoModel({
     this.id,
     required this.titulo,
     required this.descricao,
     required this.categoria,
     required this.prioridade,
+    required this.status,
     required this.bairro,
     required this.responsavel,
-    required this.dataCriacao,
-    this.dataResolucao,
-    required this.status,
-    this.observacoes,
+    required this.dataAbertura,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  // Getters para auxiliar nas regras de negócio
+  // ── Getters auxiliares ─────────────────────────────────────────────────────
+
   bool get isConcluido => status == StatusChamado.concluido;
-  bool get isCritico => prioridade == PrioridadeChamado.critica;
-  
-  int get diasEmAberto {
-    return DateTime.now().difference(dataCriacao).inDays;
+  bool get isCritico   => prioridade == PrioridadeChamado.critica;
+  bool get isAltaOuCritica =>
+      prioridade == PrioridadeChamado.alta ||
+      prioridade == PrioridadeChamado.critica;
+
+  /// Tempo decorrido desde a abertura — calculado em runtime, nunca armazenado
+  Duration get tempoAberto => DateTime.now().difference(dataAbertura);
+
+  String get tempoAbertFormatado {
+    final d = tempoAberto;
+    if (d.inDays > 0)  return '${d.inDays}d ${d.inHours.remainder(24)}h';
+    if (d.inHours > 0) return '${d.inHours}h ${d.inMinutes.remainder(60)}min';
+    return '${d.inMinutes}min';
   }
 
-  String get statusTexto {
-    switch (status) {
-      case StatusChamado.aberto:
-        return 'Aberto';
-      case StatusChamado.emProgresso:
-        return 'Em Progresso';
-      case StatusChamado.aguardando:
-        return 'Aguardando';
-      case StatusChamado.concluido:
-        return 'Concluído';
-    }
-  }
+  String get dataAberturaFormatada =>
+      DateFormat('dd/MM/yyyy HH:mm').format(dataAbertura);
 
-  String get prioridadeTexto {
-    switch (prioridade) {
-      case PrioridadeChamado.baixa:
-        return 'Baixa';
-      case PrioridadeChamado.media:
-        return 'Média';
-      case PrioridadeChamado.alta:
-        return 'Alta';
-      case PrioridadeChamado.critica:
-        return 'Crítica';
-    }
-  }
+  // ── Serialização ───────────────────────────────────────────────────────────
 
-  String get categoriaTexto {
-    switch (categoria) {
-      case CategoriaChamado.asfalto:
-        return 'Asfalto';
-      case CategoriaChamado.iluminacao:
-        return 'Iluminação';
-      case CategoriaChamado.drenagem:
-        return 'Drenagem';
-      case CategoriaChamado.calçada:
-        return 'Calçada';
-      case CategoriaChamado.manutenção:
-        return 'Manutenção';
-      case CategoriaChamado.outro:
-        return 'Outro';
-    }
-  }
+  /// Para gravar no SQLite
+  Map<String, dynamic> toMap() => {
+        if (id != null) 'id': id,
+        'titulo':        titulo,
+        'descricao':     descricao,
+        'categoria':     categoria.dbValue,          // TEXT
+        'prioridade':    prioridade.index,            // INTEGER 0-3
+        'status':        status.index,                // INTEGER 0-2
+        'bairro':        bairro,
+        'responsavel':   responsavel,
+        'data_abertura': dataAbertura.millisecondsSinceEpoch,
+        'created_at':    createdAt.millisecondsSinceEpoch,
+        'updated_at':    updatedAt.millisecondsSinceEpoch,
+      };
 
-  String get dataCriacaoFormatada {
-    return DateFormat('dd/MM/yyyy HH:mm').format(dataCriacao);
-  }
+  /// Para ler do SQLite
+  factory ChamadoModel.fromMap(Map<String, dynamic> map) => ChamadoModel(
+        id:           map['id'] as int?,
+        titulo:       map['titulo'] as String,
+        descricao:    map['descricao'] as String,
+        categoria:    CategoriaChamado.fromDbValue(map['categoria'] as String),
+        prioridade:   PrioridadeChamado.values[map['prioridade'] as int],
+        status:       StatusChamado.values[map['status'] as int],
+        bairro:       map['bairro'] as String,
+        responsavel:  map['responsavel'] as String,
+        dataAbertura: DateTime.fromMillisecondsSinceEpoch(map['data_abertura'] as int),
+        createdAt:    DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
+        updatedAt:    DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
+      );
 
-  // Converter para JSON para salvamento
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'titulo': titulo,
-      'descricao': descricao,
-      'categoria': categoria.index,
-      'prioridade': prioridade.index,
-      'bairro': bairro,
-      'responsavel': responsavel,
-      'dataCriacao': dataCriacao.toIso8601String(),
-      'dataResolucao': dataResolucao?.toIso8601String(),
-      'status': status.index,
-      'observacoes': observacoes,
-    };
-  }
-
-  // Converter do JSON
-  factory ChamadoModel.fromMap(Map<String, dynamic> map) {
-    return ChamadoModel(
-      id: map['id'] as int?,
-      titulo: map['titulo'] as String,
-      descricao: map['descricao'] as String,
-      categoria: CategoriaChamado.values[map['categoria'] as int],
-      prioridade: PrioridadeChamado.values[map['prioridade'] as int],
-      bairro: map['bairro'] as String,
-      responsavel: map['responsavel'] as String,
-      dataCriacao: DateTime.parse(map['dataCriacao'] as String),
-      dataResolucao: map['dataResolucao'] != null
-          ? DateTime.parse(map['dataResolucao'] as String)
-          : null,
-      status: StatusChamado.values[map['status'] as int],
-      observacoes: map['observacoes'] as String?,
-    );
-  }
-
-  // Copy with para edições
+  /// Para edições parciais
   ChamadoModel copyWith({
     int? id,
     String? titulo,
     String? descricao,
     CategoriaChamado? categoria,
     PrioridadeChamado? prioridade,
+    StatusChamado? status,
     String? bairro,
     String? responsavel,
-    DateTime? dataCriacao,
-    DateTime? dataResolucao,
-    StatusChamado? status,
-    String? observacoes,
-  }) {
-    return ChamadoModel(
-      id: id ?? this.id,
-      titulo: titulo ?? this.titulo,
-      descricao: descricao ?? this.descricao,
-      categoria: categoria ?? this.categoria,
-      prioridade: prioridade ?? this.prioridade,
-      bairro: bairro ?? this.bairro,
-      responsavel: responsavel ?? this.responsavel,
-      dataCriacao: dataCriacao ?? this.dataCriacao,
-      dataResolucao: dataResolucao ?? this.dataResolucao,
-      status: status ?? this.status,
-      observacoes: observacoes ?? this.observacoes,
-    );
-  }
+    DateTime? dataAbertura,
+    DateTime? updatedAt,
+  }) =>
+      ChamadoModel(
+        id:           id ?? this.id,
+        titulo:       titulo ?? this.titulo,
+        descricao:    descricao ?? this.descricao,
+        categoria:    categoria ?? this.categoria,
+        prioridade:   prioridade ?? this.prioridade,
+        status:       status ?? this.status,
+        bairro:       bairro ?? this.bairro,
+        responsavel:  responsavel ?? this.responsavel,
+        dataAbertura: dataAbertura ?? this.dataAbertura,
+        createdAt:    createdAt,
+        updatedAt:    updatedAt ?? DateTime.now(),
+      );
 
   @override
-  String toString() => 'ChamadoModel(id: $id, titulo: $titulo, status: $statusTexto)';
+  String toString() =>
+      'ChamadoModel(id: $id, titulo: "$titulo", status: ${status.label})';
 }

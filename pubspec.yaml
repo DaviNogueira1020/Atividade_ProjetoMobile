@@ -1,7 +1,6 @@
 name: sos_cidade
 description: "Aplicativo móvel para gerenciamento de chamados de infraestrutura urbana."
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -19,18 +18,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
-
-  assets:
-    - assets/
-
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
+  # Descomente quando criar a pasta assets:
+  # assets:
+  #   - assets/images/
