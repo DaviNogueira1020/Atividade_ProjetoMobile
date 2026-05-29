@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/chamado_model.dart';
-import '../providers/chamado_provider.dart';
+import '../../models/chamado_model.dart';
+import '../../providers/chamado_provider.dart';
 import '../widgets/chamado_card.dart';
 import '../widgets/status_card.dart';
 import '../core/app_theme.dart';

@@ -39,6 +39,10 @@ class ChamadoProvider extends ChangeNotifier {
 
   /// Alerta visual: mais de 5 críticos (conforme requisito)
   bool get temAlertaCriticos => _totalCriticos > 5;
+  bool get temAlerta => temAlertaCriticos;
+  int get totalChamadasAbertas => _totalAbertos;
+  int get totalChamadosEmProgresso => _totalEmAndamento;
+  int get totalChamadosCriticos => _totalCriticos;
 
   /// Lista já ordenada: crítica > alta > média > baixa, depois data desc
   List<ChamadoModel> get chamadosOrdenados {
@@ -76,6 +80,7 @@ class ChamadoProvider extends ChangeNotifier {
     required PrioridadeChamado prioridade,
     required String bairro,
     required String responsavel,
+    String? observacoes,
   }) async {
     // Validações
     final erroValidacao = _validar(
@@ -103,6 +108,7 @@ class ChamadoProvider extends ChangeNotifier {
       dataAbertura: agora,
       createdAt:    agora,
       updatedAt:    agora,
+      observacoes:  observacoes != null && observacoes.trim().isNotEmpty ? observacoes.trim() : null,
     );
 
     try {
@@ -128,6 +134,7 @@ class ChamadoProvider extends ChangeNotifier {
     required StatusChamado status,
     required String bairro,
     required String responsavel,
+    String? observacoes,
   }) async {
     // Regra: concluído não pode ser editado
     if (original.isConcluido) {
@@ -156,6 +163,7 @@ class ChamadoProvider extends ChangeNotifier {
       bairro:      bairro.trim(),
       responsavel: responsavel.trim(),
       updatedAt:   DateTime.now(),
+      observacoes: observacoes != null && observacoes.trim().isNotEmpty ? observacoes.trim() : null,
     );
 
     try {

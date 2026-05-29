@@ -1,10 +1,10 @@
-// lib/core/app_theme.dart
+// lib/frontend/core/app_theme.dart
 //
 // ⚠️  O import do model foi movido para o TOPO do arquivo.
 //     No código original estava no final, o que causa erro de compilação.
 
 import 'package:flutter/material.dart';
-import '../models/chamado_model.dart';
+import '../../models/chamado_model.dart';
 
 class AppTheme {
   AppTheme._();
@@ -26,6 +26,7 @@ class AppTheme {
   // ── Cores por status ───────────────────────────────────────────────────────
   static const Color corAberto      = Color(0xFF2E7D32);
   static const Color corEmAndamento = Color(0xFF1976D2);
+  static const Color corEmProgresso = corEmAndamento;
   static const Color corConcluido   = Color(0xFF388E3C);
 
   // ── Cores por prioridade ───────────────────────────────────────────────────

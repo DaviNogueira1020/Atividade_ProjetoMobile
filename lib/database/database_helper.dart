@@ -30,7 +30,7 @@ class DatabaseHelper {
     final path = join(await getDatabasesPath(), 'sos_cidade.db');
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -51,6 +51,7 @@ class DatabaseHelper {
         data_abertura INTEGER NOT NULL,
         created_at    INTEGER NOT NULL,
         updated_at    INTEGER NOT NULL,
+        observacoes   TEXT,
 
         CONSTRAINT uq_chamados_titulo UNIQUE (titulo)
       )
@@ -69,7 +70,9 @@ class DatabaseHelper {
 
   // Para futuras migrações (ex: adicionar coluna foto na versão 2)
   Future<void> _onUpgrade(Database db, int oldV, int newV) async {
-    // if (oldV < 2) await db.execute('ALTER TABLE chamados ADD COLUMN foto TEXT');
+    if (oldV < 2) {
+      await db.execute('ALTER TABLE chamados ADD COLUMN observacoes TEXT');
+    }
   }
 
   // ── CREATE ─────────────────────────────────────────────────────────────────

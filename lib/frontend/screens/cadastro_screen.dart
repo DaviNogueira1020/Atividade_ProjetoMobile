@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/chamado_model.dart';
-import '../providers/chamado_provider.dart';
+import '../../models/chamado_model.dart';
+import '../../providers/chamado_provider.dart';
 import '../widgets/custom_textfield.dart';
 import '../core/validators.dart';
 import '../core/app_theme.dart';
@@ -60,19 +60,15 @@ class _CadastroScreenState extends State<CadastroScreen> {
         return;
       }
 
-      final chamado = ChamadoModel(
+      context.read<ChamadoProvider>().adicionarChamado(
         titulo: _tituloController.text,
         descricao: _descricaoController.text,
         categoria: _categoriaSelected!,
         prioridade: _prioridadeSelected!,
         bairro: _bairroController.text,
         responsavel: _responsavelController.text,
-        dataCriacao: DateTime.now(),
-        status: _statusSelected,
-        observacoes: _observacoesController.text.isEmpty ? null : _observacoesController.text,
-      );
-
-      context.read<ChamadoProvider>().adicionarChamado(chamado).then((_) {
+        observacoes: _observacoesController.text.isNotEmpty ? _observacoesController.text : null,
+      ).then((_) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Chamado cadastrado com sucesso!')),
         );
@@ -138,16 +134,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                 items: CategoriaChamado.values.map((categoria) {
                   return DropdownMenuItem(
                     value: categoria,
-                    child: Text(ChamadoModel(
-                      titulo: '',
-                      descricao: '',
-                      categoria: categoria,
-                      prioridade: PrioridadeChamado.baixa,
-                      bairro: '',
-                      responsavel: '',
-                      dataCriacao: DateTime.now(),
-                      status: StatusChamado.aberto,
-                    ).categoriaTexto),
+                    child: Text(categoria.label),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -176,16 +163,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                 items: PrioridadeChamado.values.map((prioridade) {
                   return DropdownMenuItem(
                     value: prioridade,
-                    child: Text(ChamadoModel(
-                      titulo: '',
-                      descricao: '',
-                      categoria: CategoriaChamado.outro,
-                      prioridade: prioridade,
-                      bairro: '',
-                      responsavel: '',
-                      dataCriacao: DateTime.now(),
-                      status: StatusChamado.aberto,
-                    ).prioridadeTexto),
+                    child: Text(prioridade.label),
                   );
                 }).toList(),
                 onChanged: (value) {

@@ -94,6 +94,7 @@ class ChamadoModel {
   final DateTime dataAbertura; // = data_abertura no banco (epoch millis)
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? observacoes;
 
   const ChamadoModel({
     this.id,
@@ -104,10 +105,15 @@ class ChamadoModel {
     required this.status,
     required this.bairro,
     required this.responsavel,
-    required this.dataAbertura,
+    DateTime? dataAbertura,
+    DateTime? dataCriacao,
     required this.createdAt,
     required this.updatedAt,
-  });
+    this.observacoes,
+  }) : dataAbertura = dataAbertura ?? dataCriacao ??
+            (throw ArgumentError('dataAbertura or dataCriacao is required'));
+
+  DateTime get dataCriacao => dataAbertura;
 
   // ── Getters auxiliares ─────────────────────────────────────────────────────
 
@@ -130,6 +136,13 @@ class ChamadoModel {
   String get dataAberturaFormatada =>
       DateFormat('dd/MM/yyyy HH:mm').format(dataAbertura);
 
+  String get dataCriacaoFormatada => dataAberturaFormatada;
+
+  String get categoriaTexto => categoria.label;
+  String get statusTexto => status.label;
+  String get prioridadeTexto => prioridade.label;
+  int get diasEmAberto => tempoAberto.inDays;
+
   // ── Serialização ───────────────────────────────────────────────────────────
 
   /// Para gravar no SQLite
@@ -145,6 +158,7 @@ class ChamadoModel {
         'data_abertura': dataAbertura.millisecondsSinceEpoch,
         'created_at':    createdAt.millisecondsSinceEpoch,
         'updated_at':    updatedAt.millisecondsSinceEpoch,
+        'observacoes':   observacoes,
       };
 
   /// Para ler do SQLite
@@ -160,6 +174,7 @@ class ChamadoModel {
         dataAbertura: DateTime.fromMillisecondsSinceEpoch(map['data_abertura'] as int),
         createdAt:    DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
         updatedAt:    DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
+        observacoes:  map['observacoes'] as String?,
       );
 
   /// Para edições parciais
@@ -174,6 +189,7 @@ class ChamadoModel {
     String? responsavel,
     DateTime? dataAbertura,
     DateTime? updatedAt,
+    String? observacoes,
   }) =>
       ChamadoModel(
         id:           id ?? this.id,
@@ -187,6 +203,7 @@ class ChamadoModel {
         dataAbertura: dataAbertura ?? this.dataAbertura,
         createdAt:    createdAt,
         updatedAt:    updatedAt ?? DateTime.now(),
+        observacoes:  observacoes ?? this.observacoes,
       );
 
   @override

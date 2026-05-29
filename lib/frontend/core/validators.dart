@@ -1,4 +1,4 @@
-// lib/core/validators.dart
+// lib/frontend/core/validators.dart
 //
 // Validações de formulário usadas nas Screens.
 // As regras de negócio (título único, concluído não edita) ficam no Provider.

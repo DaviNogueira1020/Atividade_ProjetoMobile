@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/chamado_provider.dart';
-import 'core/app_theme.dart';
-import 'screens/dashboard_screen.dart';
+import 'frontend/core/app_theme.dart';
+import 'frontend/screens/dashboard_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
