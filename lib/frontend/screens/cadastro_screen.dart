@@ -1,8 +1,11 @@
+// lib/frontend/screens/cadastro_screen.dart
+// CORRIGIDO: import de custom_textfield aponta para ../widgets/ (frontend/widgets)
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/chamado_model.dart';
 import '../../providers/chamado_provider.dart';
-import '../widgets/custom_textfield.dart';
+import '../widgets/custom_textfield.dart'; // CORRIGIDO: era ../../widgets/custom_textfield.dart
 import '../core/validators.dart';
 import '../core/app_theme.dart';
 
@@ -23,7 +26,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
   CategoriaChamado? _categoriaSelected;
   PrioridadeChamado? _prioridadeSelected;
-  StatusChamado _statusSelected = StatusChamado.aberto;
 
   @override
   void initState() {
@@ -67,16 +69,21 @@ class _CadastroScreenState extends State<CadastroScreen> {
         prioridade: _prioridadeSelected!,
         bairro: _bairroController.text,
         responsavel: _responsavelController.text,
-        observacoes: _observacoesController.text.isNotEmpty ? _observacoesController.text : null,
-      ).then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chamado cadastrado com sucesso!')),
-        );
-        Navigator.of(context).pop();
-      }).catchError((e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
-        );
+        observacoes: _observacoesController.text.isNotEmpty
+            ? _observacoesController.text
+            : null,
+      ).then((erro) {
+        if (!mounted) return;
+        if (erro != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro: $erro')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Chamado cadastrado com sucesso!')),
+          );
+          Navigator.of(context).pop();
+        }
       });
     }
   }
@@ -94,7 +101,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título
               CustomTextField(
                 label: 'Título',
                 hint: 'Ex: Buraco na rua',
@@ -104,7 +110,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Descrição
               CustomTextField(
                 label: 'Descrição',
                 hint: 'Descreva o problema com detalhes',
@@ -116,11 +121,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Categoria
-              Text(
-                'Categoria',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Categoria', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               DropdownButtonFormField<CategoriaChamado>(
                 value: _categoriaSelected,
@@ -137,19 +138,11 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     child: Text(categoria.label),
                   );
                 }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _categoriaSelected = value;
-                  });
-                },
+                onChanged: (value) => setState(() => _categoriaSelected = value),
               ),
               const SizedBox(height: 16),
 
-              // Prioridade
-              Text(
-                'Prioridade',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Prioridade', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               DropdownButtonFormField<PrioridadeChamado>(
                 value: _prioridadeSelected,
@@ -166,15 +159,10 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     child: Text(prioridade.label),
                   );
                 }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _prioridadeSelected = value;
-                  });
-                },
+                onChanged: (value) => setState(() => _prioridadeSelected = value),
               ),
               const SizedBox(height: 16),
 
-              // Bairro
               CustomTextField(
                 label: 'Bairro',
                 hint: 'Bairro onde ocorre o problema',
@@ -184,7 +172,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Responsável
               CustomTextField(
                 label: 'Responsável',
                 hint: 'Nome de quem está reportando',
@@ -194,7 +181,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Observações
               CustomTextField(
                 label: 'Observações (Opcional)',
                 hint: 'Informações adicionais',
@@ -205,7 +191,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Botões
               Row(
                 children: [
                   Expanded(

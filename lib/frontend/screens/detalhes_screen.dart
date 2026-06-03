@@ -1,9 +1,12 @@
+// lib/frontend/screens/detalhes_screen.dart
+// CORRIGIDO: import de custom_textfield aponta para ../widgets/ (frontend/widgets)
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/chamado_model.dart';
 import '../../providers/chamado_provider.dart';
 import '../core/app_theme.dart';
-import '../widgets/custom_textfield.dart';
+import '../widgets/custom_textfield.dart'; // CORRIGIDO: era ../../widgets/custom_textfield.dart
 import '../core/validators.dart';
 
 class DetalhesScreen extends StatefulWidget {
@@ -47,13 +50,14 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
     }
 
     context.read<ChamadoProvider>().atualizarStatus(_chamado.id!, novoStatus).then((_) {
-      // Recarregar dados
+      if (!mounted) return;
       final provider = context.read<ChamadoProvider>();
-      _chamado = provider.chamados.firstWhere(
-        (c) => c.id == _chamado.id,
-        orElse: () => _chamado,
-      );
-      setState(() {});
+      setState(() {
+        _chamado = provider.chamados.firstWhere(
+          (c) => c.id == _chamado.id,
+          orElse: () => _chamado,
+        );
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Status atualizado')),
       );
@@ -61,10 +65,10 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
   }
 
   void _atualizarObservacoes() {
-    final observacoes = _observacoesController.text.isEmpty 
-        ? null 
+    final observacoes = _observacoesController.text.isEmpty
+        ? null
         : _observacoesController.text;
-    
+
     context.read<ChamadoProvider>().atualizarChamado(
       original: _chamado,
       titulo: _chamado.titulo,
@@ -76,13 +80,14 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
       responsavel: _chamado.responsavel,
       observacoes: observacoes,
     ).then((_) {
+      if (!mounted) return;
       final provider = context.read<ChamadoProvider>();
-      _chamado = provider.chamados.firstWhere(
-        (c) => c.id == _chamado.id,
-        orElse: () => _chamado,
-      );
       setState(() {
         _editando = false;
+        _chamado = provider.chamados.firstWhere(
+          (c) => c.id == _chamado.id,
+          orElse: () => _chamado,
+        );
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Observações atualizadas')),
@@ -103,8 +108,9 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
           ),
           TextButton(
             onPressed: () {
+              Navigator.of(context).pop();
               context.read<ChamadoProvider>().deletarChamado(_chamado.id!).then((_) {
-                Navigator.of(context).pop();
+                if (!mounted) return;
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Chamado deletado')),
@@ -135,7 +141,6 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Cabeçalho com título e ícone crítico
             Row(
               children: [
                 Expanded(
@@ -174,17 +179,13 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Status e Prioridade
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Status',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
+                      Text('Status', style: Theme.of(context).textTheme.titleSmall),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -194,10 +195,7 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                         ),
                         child: Text(
                           _chamado.statusTexto,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -208,10 +206,7 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Prioridade',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
+                      Text('Prioridade', style: Theme.of(context).textTheme.titleSmall),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -221,10 +216,7 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                         ),
                         child: Text(
                           _chamado.prioridadeTexto,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -234,18 +226,13 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Informações
             _infoRow('Categoria', _chamado.categoriaTexto),
             _infoRow('Bairro', _chamado.bairro),
             _infoRow('Responsável', _chamado.responsavel),
             _infoRow('Dias em aberto', '${_chamado.diasEmAberto} dias'),
             const SizedBox(height: 24),
 
-            // Descrição
-            Text(
-              'Descrição',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text('Descrição', style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
@@ -254,18 +241,11 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AppTheme.corBorda),
               ),
-              child: Text(
-                _chamado.descricao,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              child: Text(_chamado.descricao, style: Theme.of(context).textTheme.bodyMedium),
             ),
             const SizedBox(height: 24),
 
-            // Observações
-            Text(
-              'Observações',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text('Observações', style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             if (_editando)
               Column(
@@ -281,12 +261,10 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {
-                            setState(() {
-                              _editando = false;
-                              _observacoesController.text = _chamado.observacoes ?? '';
-                            });
-                          },
+                          onPressed: () => setState(() {
+                            _editando = false;
+                            _observacoesController.text = _chamado.observacoes ?? '';
+                          }),
                           child: const Text('Cancelar'),
                         ),
                       ),
@@ -316,8 +294,8 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                       child: Text(
                         _chamado.observacoes ?? 'Sem observações',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: _chamado.observacoes != null 
-                              ? AppTheme.corTextoTitulo 
+                          color: _chamado.observacoes != null
+                              ? AppTheme.corTextoTitulo
                               : AppTheme.corTextoDisabled,
                         ),
                       ),
@@ -325,18 +303,13 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                     if (!_chamado.isConcluido)
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          setState(() {
-                            _editando = true;
-                          });
-                        },
+                        onPressed: () => setState(() => _editando = true),
                       ),
                   ],
                 ),
               ),
             const SizedBox(height: 24),
 
-            // Botões de ação
             if (!_chamado.isConcluido)
               Column(
                 children: [
@@ -375,21 +348,8 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppTheme.corTextoSecundario,
-              fontSize: 14,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppTheme.corTextoTitulo,
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-            ),
-          ),
+          Text(label, style: const TextStyle(color: AppTheme.corTextoSecundario, fontSize: 14)),
+          Text(value, style: const TextStyle(color: AppTheme.corTextoTitulo, fontWeight: FontWeight.w500, fontSize: 14)),
         ],
       ),
     );

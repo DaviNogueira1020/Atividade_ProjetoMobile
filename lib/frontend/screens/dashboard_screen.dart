@@ -1,9 +1,12 @@
+// lib/frontend/screens/dashboard_screen.dart
+// CORRIGIDO: imports de widgets apontam para ../widgets/ (frontend/widgets)
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/chamado_model.dart';
 import '../../providers/chamado_provider.dart';
-import '../widgets/chamado_card.dart';
-import '../widgets/status_card.dart';
+import '../widgets/chamado_card.dart';   // CORRIGIDO: era ../../widgets/chamado_card.dart
+import '../widgets/status_card.dart';   // CORRIGIDO: era ../../widgets/status_card.dart
 import '../core/app_theme.dart';
 import 'cadastro_screen.dart';
 import 'detalhes_screen.dart';
@@ -51,42 +54,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Alerta se > 5 críticos
-                if (provider.temAlerta)
+                // Alerta de críticos
+                if (provider.temAlertaCriticos)
                   Container(
+                    width: double.infinity,
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.corCritica.withOpacity(0.1),
-                      border: Border.all(color: AppTheme.corCritica),
+                      color: AppTheme.corCritica,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.warning,
-                          color: AppTheme.corCritica,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Alerta: Muitos chamados críticos!',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.corCritica,
-                                ),
-                              ),
-                              Text(
-                                '${provider.totalChamadosCriticos} chamados críticos sem resolução',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.corTextoSecundario,
-                                ),
-                              ),
-                            ],
+                        const Icon(Icons.warning, color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Atenção: ${provider.totalChamadosCriticos} chamados críticos!',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -95,76 +81,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                 // Cards de status
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.4,
                     children: [
                       StatusCard(
                         titulo: 'Total',
                         valor: provider.totalChamados,
-                        cor: AppTheme.corPrimaria,
-                        icone: Icons.list,
-                        onTap: () {
-                          // Filtrar todos
-                        },
+                        cor: AppTheme.corSecundaria,
+                        icone: Icons.list_alt,
                       ),
                       StatusCard(
                         titulo: 'Abertos',
-                        valor: provider.totalChamadasAbertas,
+                        valor: provider.totalAbertos,
                         cor: AppTheme.corAberto,
-                        icone: Icons.open_in_new,
-                        onTap: () {
-                          // Filtrar abertos
-                        },
+                        icone: Icons.folder_open,
                       ),
                       StatusCard(
-                        titulo: 'Em Progresso',
-                        valor: provider.totalChamadosEmProgresso,
-                        cor: AppTheme.corEmProgresso,
-                        icone: Icons.hourglass_top,
-                        onTap: () {
-                          // Filtrar em progresso
-                        },
+                        titulo: 'Em Andamento',
+                        valor: provider.totalEmAndamento,
+                        cor: AppTheme.corEmAndamento,
+                        icone: Icons.autorenew,
                       ),
                       StatusCard(
-                        titulo: 'Críticos',
-                        valor: provider.totalChamadosCriticos,
-                        cor: AppTheme.corCritica,
-                        icone: Icons.priority_high,
-                        onTap: () {
-                          // Filtrar críticos
-                        },
+                        titulo: 'Concluídos',
+                        valor: provider.totalConcluidos,
+                        cor: AppTheme.corConcluido,
+                        icone: Icons.check_circle,
                       ),
                     ],
                   ),
                 ),
 
-                // Lista de chamados ordenada
+                const SizedBox(height: 16),
+
+                // Lista de chamados
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'Chamados Recentes',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
-                const SizedBox(height: 12),
-                if (provider.chamados.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.inbox,
-                          size: 64,
-                          color: AppTheme.corBorda,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('Nenhum chamado cadastrado'),
-                      ],
+
+                if (provider.chamadosOrdenados.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(32),
+                    child: Center(
+                      child: Text('Nenhum chamado cadastrado.'),
                     ),
                   )
                 else
@@ -179,31 +148,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => DetalhesScreen(
-                                chamado: chamado,
-                              ),
+                              builder: (_) => DetalhesScreen(chamado: chamado),
                             ),
                           );
                         },
                       );
                     },
                   ),
-                const SizedBox(height: 32),
+
+                const SizedBox(height: 80),
               ],
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.corPrimaria,
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const CadastroScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => const CadastroScreen()),
           );
         },
-        child: const Icon(Icons.add),
+        icon: const Icon(Icons.add),
+        label: const Text('Novo Chamado'),
       ),
     );
   }

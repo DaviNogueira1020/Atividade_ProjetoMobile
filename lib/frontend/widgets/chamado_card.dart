@@ -1,6 +1,9 @@
+// lib/frontend/widgets/chamado_card.dart
+// CORRIGIDO: import de app_theme ajustado para o mesmo diretório (../core/app_theme)
+
 import 'package:flutter/material.dart';
 import '../../models/chamado_model.dart';
-import 'app_theme.dart';
+import '../core/app_theme.dart'; // CORRIGIDO: era 'app_theme.dart' (path errado)
 
 class ChamadoCard extends StatelessWidget {
   final ChamadoModel chamado;
