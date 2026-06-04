@@ -14,4 +14,15 @@ class Dashboard {
     required this.critical,
     required this.hasAlert,
   });
+
+  Map<String, dynamic> toJson(){
+    return {
+      'total': total,
+      'open': open,
+      'inProgress': inProgress,
+      'completed': completed,
+      'critical': critical,
+      'hasAlert': hasAlert,
+    };
+  }
 }
