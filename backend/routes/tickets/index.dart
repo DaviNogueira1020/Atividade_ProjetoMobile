@@ -13,7 +13,7 @@ Future<Response> onRequest(RequestContext context) async{
 
   switch (request.method) {
     case HttpMethod.get:
-      return _getTickets();
+      return _getTickets(request);
 
     case HttpMethod.post:
       return _createTicket(request);
@@ -27,9 +27,32 @@ Future<Response> onRequest(RequestContext context) async{
   }
 }
 
-Response _getTickets() {
+Response _getTickets(Request request){
   final repository = TicketRepository();
   final service = TicketService(repository);
+
+  final search = request.uri.queryParameters['search'];
+  final neighborhood = request.uri.queryParameters['bairro'];
+
+  if(search != null && search.isNotEmpty){
+    final tickets = service.searchTickets(search);
+
+    return Response.json(
+      body: tickets
+        .map((ticket) => ticket.toJson())
+        .toList(),  
+    );
+  }
+
+  if(neighborhood != null && neighborhood.isNotEmpty){
+    final tickets = service.getTicketsByNeighborhood(neighborhood);
+
+    return Response.json(
+      body: tickets
+        .map((ticket) => ticket.toJson())
+        .toList(),  
+    );
+  }
 
   final tickets = service.getAllTickets();
 

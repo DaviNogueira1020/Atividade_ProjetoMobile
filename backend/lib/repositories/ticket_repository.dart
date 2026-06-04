@@ -167,6 +167,40 @@ class TicketRepository {
     return result.first['total'] as int;
   }
 
+  List<Ticket> findByNeighborhood(String neighborhood){
+    final result = _db.select(
+      '''
+      SELECT *
+      FROM chamados
+      WHERE bairro LIKE ?
+      ORDER BY prioridade DESC,
+              data_abertura DESC
+      ''',
+      ['%$neighborhood%'],
+    );
+
+    return result.map(_mapToTicket).toList();
+  }
+
+  List<Ticket> search(String query){
+    final result = _db.select(
+      '''
+      SELECT *
+      FROM chamados
+      WHERE titulo LIKE ?
+        OR descricao LIKE ?
+      ORDER BY prioridade DESC,
+              data_abertura DESC
+      ''',
+      [
+        '%$query%',
+        '%$query%',
+      ],
+    );
+
+    return result.map(_mapToTicket).toList();
+  }
+
   Ticket _mapToTicket(Row row) {
     return Ticket.fromMap({
       'id': row['id'],

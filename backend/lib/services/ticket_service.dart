@@ -88,9 +88,17 @@ class TicketService{
       open: _repository.countByStatus(Status.aberto.index),
       inProgress: _repository.countByStatus(Status.emAndamento.index),
       completed: _repository.countByStatus(Status.concluido.index),
-      critical: critical,
+      critical: critical, 
       hasAlert: critical > 5,
     );
+  }
+
+  List<Ticket> searchTickets(String query){
+    return _repository.search(query);
+  }
+
+  List<Ticket> getTicketsByNeighborhood(String neighborhood){
+    return _repository.findByNeighborhood(neighborhood);
   }
 }
 
