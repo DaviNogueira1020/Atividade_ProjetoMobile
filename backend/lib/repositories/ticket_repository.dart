@@ -6,7 +6,7 @@ import '../models/ticket.dart';
 class TicketRepository {
   final Database _db = DatabaseConnection.instance;
 
-  Future<int> create(Ticket ticket) async {
+  int create(Ticket ticket){
     final stmt = _db.prepare('''
       INSERT INTO chamados (
         titulo,
@@ -45,7 +45,7 @@ class TicketRepository {
     return result.first['id'] as int;
   }
 
-  Ticket? findById(int id) {
+  Ticket? findById(int id){
     final result = _db.select(
       '''
       SELECT *
@@ -55,14 +55,14 @@ class TicketRepository {
       [id],
     );
 
-    if (result.isEmpty) {
+    if(result.isEmpty){
       return null;
     }
 
     return _mapToTicket(result.first);
   }
 
-  List<Ticket> findAll() {
+  List<Ticket> findAll(){
     final result = _db.select('''
       SELECT *
       FROM chamados
@@ -75,7 +75,7 @@ class TicketRepository {
         .toList();
   }
 
-  Ticket? findByTitle(String title) {
+  Ticket? findByTitle(String title){
     final result = _db.select(
       '''
       SELECT *
@@ -85,14 +85,14 @@ class TicketRepository {
       [title],
     );
 
-    if (result.isEmpty) {
+    if(result.isEmpty){
       return null;
     }
 
     return _mapToTicket(result.first);
   }
 
-  Future<void> update(Ticket ticket) async {
+  void update(Ticket ticket){
     _db.execute(
       '''
       UPDATE chamados
@@ -121,7 +121,7 @@ class TicketRepository {
     );
   }
 
-  Future<void> delete(int id) async {
+  void delete(int id){
     _db.execute(
       '''
       DELETE FROM chamados

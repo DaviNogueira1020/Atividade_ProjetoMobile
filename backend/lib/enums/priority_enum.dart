@@ -5,8 +5,10 @@ enum Priority {
   critica;
 
   static Priority fromString(String value) {
-    return Priority.values.firstWhere(
-      (e) => e.name == value,
-    );
+    try{
+      return Priority.values.firstWhere((e) => e.name == value);
+    }catch (_){
+      throw ArgumentError('Prioridade inválida: $value',);
+    }
   }
 }

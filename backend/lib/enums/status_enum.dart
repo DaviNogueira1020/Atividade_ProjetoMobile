@@ -4,8 +4,10 @@ enum Status {
   concluido;
 
   static Status fromString(String value) {
-    return Status.values.firstWhere(
-      (e) => e.name == value,
-    );
+    try{
+      return Status.values.firstWhere((e) => e.name == value);
+    }catch (_){
+      throw ArgumentError('Status inválido: $value',);
+    }
   }
 }
