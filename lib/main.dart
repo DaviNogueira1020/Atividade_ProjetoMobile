@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+<<<<<<< HEAD
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+=======
+import 'providers/chamado_provider.dart';
+import 'core/app_theme.dart';
+import 'screens/dashboard_screen.dart';
+>>>>>>> 4016823b5398158317e1478e68eb9cbb0282ada3
 
 void main() {
   runApp(
     ChangeNotifierProvider(
+<<<<<<< HEAD
       create: (context) => ChamadoProvider()..initDB(),
       child: const MeuApp(),
+=======
+      create: (context) => ChamadoProvider(),
+      child: const MyApp(),
+>>>>>>> 4016823b5398158317e1478e68eb9cbb0282ada3
     ),
   );
 }
 
+<<<<<<< HEAD
 class MeuApp extends StatelessWidget {
   const MeuApp({super.key});
 
@@ -388,6 +400,18 @@ class _CadastroScreenState extends State<CadastroScreen> {
           ],
         ),
       ),
+=======
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SOS Cidade',
+      theme: AppTheme.lightTheme,
+      home: const DashboardScreen(),
+      debugShowCheckedModeBanner: false,
+>>>>>>> 4016823b5398158317e1478e68eb9cbb0282ada3
     );
   }
 }
