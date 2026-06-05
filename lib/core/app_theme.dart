@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/chamado_model.dart';
 
 class AppTheme {
   // Cores principais
@@ -35,7 +36,6 @@ class AppTheme {
         secondary: corSecundaria,
         tertiary: corAcento,
         surface: corSuperficie,
-        background: corFundo,
         error: corAcento,
       ),
       appBarTheme: const AppBarTheme(
@@ -86,7 +86,7 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         hintStyle: const TextStyle(color: corTextoDisabled),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -171,5 +171,3 @@ class AppTheme {
   }
 }
 
-// Enums importados para simplificar
-import '../models/chamado_model.dart';

@@ -79,6 +79,19 @@ flutter pub get
 
 # 3. Rodar o app
 flutter run
+
+# 4. Rodar com Gemini (IA)
+flutter run --dart-define=GEMINI_API_KEY=SUA_CHAVE_AQUI
+```
+
+## IA com Gemini
+
+- A chave da Gemini e lida por `dart-define` (nao fica hardcoded no codigo).
+- Variavel obrigatoria: `GEMINI_API_KEY`.
+- Exemplo de uso no Android:
+
+```bash
+flutter run -d android --dart-define=GEMINI_API_KEY=SUA_CHAVE_AQUI
 ```
 
 ### Instalação em Dev

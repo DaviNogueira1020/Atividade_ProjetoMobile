@@ -1,1 +1,13 @@
 include: package:dart_frog_lint/recommended.yaml
+
+analyzer:
+  errors:
+    always_put_required_named_parameters_first: ignore
+    always_use_package_imports: ignore
+    cascade_invocations: ignore
+    directives_ordering: ignore
+    eol_at_end_of_file: ignore
+    lines_longer_than_80_chars: ignore
+    public_member_api_docs: ignore
+    sort_constructors_first: ignore
+    sort_pub_dependencies: ignore

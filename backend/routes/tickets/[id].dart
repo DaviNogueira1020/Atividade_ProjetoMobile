@@ -1,13 +1,10 @@
-
-import 'package:dart_frog/dart_frog.dart';
-
 import 'package:backend/enums/category_enum.dart';
 import 'package:backend/enums/priority_enum.dart';
 import 'package:backend/enums/status_enum.dart';
 import 'package:backend/exceptions/business_exception.dart';
-import 'package:backend/models/ticket.dart';
 import 'package:backend/repositories/ticket_repository.dart';
 import 'package:backend/services/ticket_service.dart';
+import 'package:dart_frog/dart_frog.dart';
 
 Future<Response> onRequest(RequestContext context, String id) async{
   final request = context.request;

@@ -18,8 +18,8 @@ enum CategoriaChamado {
   asfalto,
   iluminacao,
   drenagem,
-  calçada,
-  manutenção,
+  calcada,
+  manutencao,
   outro,
 }
 
@@ -92,9 +92,9 @@ class ChamadoModel {
         return 'Iluminação';
       case CategoriaChamado.drenagem:
         return 'Drenagem';
-      case CategoriaChamado.calçada:
+      case CategoriaChamado.calcada:
         return 'Calçada';
-      case CategoriaChamado.manutenção:
+      case CategoriaChamado.manutencao:
         return 'Manutenção';
       case CategoriaChamado.outro:
         return 'Outro';

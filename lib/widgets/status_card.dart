@@ -32,8 +32,8 @@ class StatusCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                cor.withOpacity(0.8),
-                cor.withOpacity(0.6),
+                cor.withValues(alpha: 0.8),
+                cor.withValues(alpha: 0.6),
               ],
             ),
           ),

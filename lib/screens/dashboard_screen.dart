@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/chamado_model.dart';
 import '../providers/chamado_provider.dart';
 import '../widgets/chamado_card.dart';
 import '../widgets/status_card.dart';
@@ -57,7 +56,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.corCritica.withOpacity(0.1),
+                      color: AppTheme.corCritica.withValues(alpha: 0.1),
                       border: Border.all(color: AppTheme.corCritica),
                       borderRadius: BorderRadius.circular(8),
                     ),

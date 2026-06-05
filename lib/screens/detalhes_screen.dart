@@ -19,9 +19,11 @@ class DetalhesScreen extends StatefulWidget {
 }
 
 class _DetalhesScreenState extends State<DetalhesScreen> {
+  static const String _prefixoPrazoIa = 'Prazo estimado (IA): ';
   late ChamadoModel _chamado;
   bool _editando = false;
   late TextEditingController _observacoesController;
+  String? _prazoEstimadoIa;
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
     _observacoesController = TextEditingController(
       text: _chamado.observacoes ?? '',
     );
+    _prazoEstimadoIa = _extrairPrazoIaDeTexto(_chamado.observacoes);
   }
 
   @override
@@ -77,11 +80,29 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
       );
       setState(() {
         _editando = false;
+        _prazoEstimadoIa = _extrairPrazoIaDeTexto(_chamado.observacoes);
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Observações atualizadas')),
       );
     });
+  }
+
+  String? _extrairPrazoIaDeTexto(String? texto) {
+    if (texto == null || texto.trim().isEmpty) {
+      return null;
+    }
+
+    final linhas = texto.split('\n');
+    for (final linha in linhas) {
+      final normalizada = linha.trimLeft();
+      if (normalizada.startsWith(_prefixoPrazoIa)) {
+        final prazo = normalizada.substring(_prefixoPrazoIa.length).trim();
+        return prazo.isEmpty ? null : prazo;
+      }
+    }
+
+    return null;
   }
 
   void _deletarChamado() {
@@ -261,6 +282,42 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
+            if (_prazoEstimadoIa != null) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.corPrimaria.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppTheme.corPrimaria.withValues(alpha: 0.35),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.schedule,
+                      size: 18,
+                      color: AppTheme.corPrimaria,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Prazo estimado pela IA: $_prazoEstimadoIa',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppTheme.corPrimaria,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
             if (_editando)
               Column(
                 children: [
@@ -269,6 +326,11 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                     controller: _observacoesController,
                     validator: Validators.validarObservacoes,
                     maxLines: 3,
+                    onChanged: (value) {
+                      setState(() {
+                        _prazoEstimadoIa = _extrairPrazoIaDeTexto(value);
+                      });
+                    },
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -279,6 +341,7 @@ class _DetalhesScreenState extends State<DetalhesScreen> {
                             setState(() {
                               _editando = false;
                               _observacoesController.text = _chamado.observacoes ?? '';
+                              _prazoEstimadoIa = _extrairPrazoIaDeTexto(_chamado.observacoes);
                             });
                           },
                           child: const Text('Cancelar'),
